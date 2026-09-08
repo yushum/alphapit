@@ -1,0 +1,22 @@
+# Allow only build inputs: excludes .git, .pi, .env, tests, workspaces and docs.
+**
+!pyproject.toml
+!uv.lock
+!README.md
+!src/
+!src/**
+
+# Also exclude local/generated content nested inside the source tree.
+**/.git
+**/.pi
+**/.env
+**/.env.*
+**/.venv
+**/__pycache__
+**/*.py[cod]
+**/*.egg-info
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/workspace
+**/workspaces
