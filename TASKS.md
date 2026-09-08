@@ -2,7 +2,18 @@
 
 ## 状态与工作方式
 
-当前：规划完成，Phase 1 待开发；已初始化 Git（`main`），无代码和测试。没有 Worker 在运行，没有任何实现或验收通过的声明。
+当前：规划完成，Phase 1 待开发；已初始化 Git（`main`），无代码和测试。本轮未启动 Worker，仓库中没有可 Review 的 Worker 实现；不能从分支列表推断外部 Worker 是否仍在运行。没有任何实现或验收通过的声明。
+
+### 本轮总设计师核查
+
+- 核查基线：`35ad033cd62306b7316dd37b0e9cda133f2526fe`（`docs: establish AlphaPit architecture and phase plans`）。修改本交接记录前工作树干净，`main` 与本地 `origin/main` 一致。
+- `git log` 只有上述规划提交；本地分支及 `git worktree list` 只有当前 `main`。`git ls-remote --heads origin` 成功，远端也仅有同一提交的 `main`。仓库没有 `src/`、`tests/`、依赖清单、Docker 配置或 CI。
+- Review 结论：没有 Worker 代码交付可验收，不标记任何任务完成。若 Worker 在外部环境已完成，需提供 commit/分支或 worktree 路径及 `Changed / Tests / Known issues`，再进行代码 Review；不能仅凭口头完成声明推进阶段。
+- 当前环境预检：Docker client/server `29.8.0`、Compose `v5.5.1` 可访问；PATH 中未发现 `uv` 或 `python3.12`。这不是构建/测试通过证据；依赖安装、PG17 容器、镜像拉取和 Actions 尚未验证。
+- 下一批仍为下表 P1-A/B/C，沿用三个现有 Prompt，不新建重复任务。A 独占应用、依赖和测试；B 独占部署文件；C 独占 CI。三者可并行编写，但 B 的运行验收依赖受审 A，C 的联合验收依赖受审 A/B。
+- 用户已授权开始 Phase 1：先提交并推送本轮文档，再从同一干净基线建立 `feat/p1-api`、`feat/p1-docker`、`feat/p1-ci` 独立 worktree。使用已发现可执行的原生 `worker`（默认 high thinking），不假定示例模型可用；父级负责最终 Review，不授权 Worker push/merge。
+- 本轮统一 uv 工具版本为 `0.6.17`（本机、Docker、CI 一致）；本机工具准备中，实际结果以执行报告为准。三个 Worker 按下表边界交付，B/C 缺受审依赖时交 checkpoint，不等待或自行合并其他分支；总设计师收到交付后 Review，再同步依赖补验收。
+- 当前尚未执行项目测试或 build。Phase 2 保持未开始，直到 Phase 1 最终验收门通过。
 
 总设计师负责文档、接口裁决、最终 Review 和合并；Worker 仅在自己的文件范围内实现。实现前阅读 README → ARCHITECTURE → TASKS → 相关代码/测试 → git status，然后说明问题、最小方案和改动路径。
 
