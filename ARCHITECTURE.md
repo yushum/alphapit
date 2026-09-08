@@ -2,7 +2,7 @@
 
 ## 真实现状
 
-当前只有规划文档和最小 `.gitignore`，没有应用、数据库、测试、CI 或部署产物；已初始化 Git，主分支为 `main`。以下是 **Phase 1 待实现契约**，不是当前已实现架构。验收后按真实代码更新本文件，未来阶段方案只在 TASKS.md 中记录。
+Phase 1 已实现并通过联合验收：单个 FastAPI 进程 + PostgreSQL 17 + Docker Compose + GitHub Actions；零业务表。未来阶段方案只在 TASKS.md 中记录。
 
 ## 最小技术栈与边界
 
@@ -14,7 +14,7 @@
 - GitHub Actions：格式、lint、类型、单测、真实 PostgreSQL 集成测试、wheel 和 Docker 构建。
 - 前端延至 Phase 6：React / TypeScript / Vite → Cloudflare Pages 静态部署。浏览器仅调用后端 REST / SSE；此阶段无前端工程。
 
-同步数据库调用使用 FastAPI 的同步路由，不在 async 路由里阻塞事件循环。不增加 Repository/Service/Manager 包装。Phase 1 没有 scheduler、Agent loop 或 Broker 占位实现。
+同步数据库调用使用 FastAPI 的同步路由，不在 async 路由里阻塞事件循环。不增加 Repository/Service/Manager 包装。Phase 1 没有 scheduler、Agent loop 或 Broker 占位实现。实际实现为 `src/alphapit/main.py` 的 `create_app()`/`app` 与 `src/alphapit/db.py` 的短连接 `SELECT 1` 探针。
 
 ## Phase 1 最小目录契约
 
@@ -35,7 +35,6 @@ compose.yaml
 .env.example
 .gitignore
 .github/workflows/ci.yml
-prompts/phase1-*.md         # 临时派工文件，阶段结束删除
 ```
 
 不为未来模块创建空包。README 和长期设计文档由总设计师独占维护。
@@ -56,6 +55,14 @@ prompts/phase1-*.md         # 临时派工文件，阶段结束删除
 ### 最少数据库表
 
 **Phase 1：零业务表。** 验证真实连接、查询和部署持久卷即可；不要为健康检查造表，也不要创建未来 Agent 表。当前没有迁移文件；Phase 2 引入第一份真实 SQL schema 时再确定最小迁移方式。
+
+## 已验收证据（Phase 1 联合验收，integration/phase1）
+
+- `uv sync --frozen --extra dev`、`ruff format --check .`（13 文件已格式化）、`ruff check .`、`mypy src tests`（5 文件 strict 通过）、`pytest -m 'not integration'`（16 passed）、`pytest -m integration`（3 passed，真实 PG17）、全量 `pytest`（19 passed）、`python -m build`（sdist/wheel）、`uv lock --check` 通过。
+- `docker compose config --quiet`、`docker build`、唯一 project `up --build -d --wait` 通过；`/health/live` 200 `{"status":"ok"}`、`/health/ready` 200 `{"status":"ready"}`。
+- 停止 db 后 live 仍 200、ready 为 503；恢复 db 后 ready 回到 200。专用标记表在 db 容器重建（保留卷）后仍存在，验证后已清理；公共表数量前后均为 0。
+- 镜像用户为 `app`（非 root），启动命令为 `uvicorn alphapit.main:app`；db 无宿主端口映射；构建上下文仅含运行文件。
+- 实际 GitHub Actions 运行结论以远端 run 为准，不以本地检查冒充。
 
 ## 本轮工程契约
 
