@@ -2,7 +2,7 @@
 
 ## 状态与工作方式
 
-当前：Phase 1 已在 `integration/phase1` 通过联合验收，待合并 `main` 并以远端 CI 确认；Phase 2 未开始。原评审员因子模型额度失败，已由总设计师按实际代码与验收证据直接 Review，不重复 Worker 工作。
+当前：Phase 1 已合并 `main` 并通过本地联合验收与远端 CI；Phase 2 未开始。原评审员因子模型额度失败，已由总设计师按实际代码与验收证据直接 Review，不重复 Worker 工作。远端 CI：https://github.com/yushum/alphapit/actions/runs/34198968210（`baf83e1`，success）。
 
 ### 本轮总设计师核查
 
@@ -33,7 +33,7 @@
 |---|---|---|---|---|
 | P1-A | Python API / DB 检查；输入为 ARCHITECTURE 的 API、依赖、命令契约 | `pyproject.toml`, `uv.lock`, `src/alphapit/**`, `tests/**` | live / ready 精确匹配；数据库成功/失败、超时配置、资源关闭与 secret 脱敏测试；格式/lint/mypy/单测/真实 DB 集成测试/wheel 通过 | 已验收（`369f1c3`） |
 | P1-B | Docker 开发部署；输入为固定导入路径、端口、uv lock 与 env 契约 | `Dockerfile`, `compose.yaml`, `.dockerignore`, `.env.example`, `.gitignore` | 非 root、仅运行依赖、锁文件 frozen；Compose 正常就绪；DB 不对宿主暴露；故障恢复与卷持久化验证 | 已验收（`efce2e1`，运行时门在集成中补齐） |
-| P1-C | GitHub Actions；输入为固定检查命令与端点 | `.github/workflows/ci.yml` | PR/main 自动检查；PG17 集成测试未跳过；wheel/Docker build 和容器 HTTP smoke 通过；最小 read 权限、无 secret/GHCR 推送 | 已验收静态部分（`ed7f00d`），远端 run 待 main 推送后确认 |
+| P1-C | GitHub Actions；输入为固定检查命令与端点 | `.github/workflows/ci.yml` | PR/main 自动检查；PG17 集成测试未跳过；wheel/Docker build 和容器 HTTP smoke 通过；最小 read 权限、无 secret/GHCR 推送 | 已验收（`ed7f00d` + 远端 CI success，run 34198968210） |
 
 Phase 1 临时派工文件 `prompts/phase1-*.md` 已按约定在验收后删除；长期交接回归本文件。原始 `WORKER_PROMPT.md` 不修改。
 
